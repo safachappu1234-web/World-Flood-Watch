@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Floodguard</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 100vh; width: 100%; }
+        body { margin: 0; padding: 0; }
+        #simulateBtn { position: absolute; top: 10px; left: 50px; z-index: 1000; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <button id="simulateBtn">Add Danger Report</button>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBb_Cb12KP7bi9UWUD3GH05O1i6UNEtU4Y",
+          authDomain: "world-flood-watch.firebaseapp.com",
+          projectId: "world-flood-watch",
+          storageBucket: "world-flood-watch.firebasestorage.app",
+          messagingSenderId: "406955303083",
+          appId: "1:406955303083:web:80e8c267b8ecaff5e957ee"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            document.getElementById('simulateBtn').addEventListener('click', async function() {
+                L.marker([11.87, 75.35], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                        iconSize: [25, 41]
+                    })
+                }).addTo(map).bindPopup('DANGER: Koothuparamba');
+                
+                await db.collection("flood_reports").add({
+                    location: "Koothuparamba",
+                    status: "DANGER",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Danger report added!');
+            });
+        });
+    </script>
+</body>
+</html>
