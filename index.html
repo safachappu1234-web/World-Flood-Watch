@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Floodguard - Live Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { height: 100vh; width: 100vw; }
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        button:hover { background: #b71c1c; }
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .legend-item { margin: 5px 0; }
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .red { background-color: #d32f2f; }
+        .yellow { background-color: #fbc02d; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="controls">
+        <button onclick="addDangerZone()">+ Add Danger Report</button>
+    </div>
+    
+    <div class="legend">
+        <strong>Flood Zones</strong>
+        <div class="legend-item"><span class="dot red"></span>High Danger</div>
+        <div class="legend-item"><span class="dot yellow"></span>Caution</div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on Kerala
+        var map = L.map('map').setView([10.8505, 76.2711], 7);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // High danger zones - RED
+        var highDangerZones = [
+            {lat: 10.0889, lng: 76.5584, name: "Periyar River, Aluva", level: "Critical flooding reported"},
+            {lat: 9.5916, lng: 76.5222, name: "Kuttanad, Alappuzha", level: "Below sea level - severe risk"},
+            {lat: 10.5276, lng: 76.2144, name: "Chalakudy River", level: "River overflow warning"}
+        ];
+
+        // Caution zones - YELLOW  
+        var cautionZones = [
+            {lat: 11.2588, lng: 75.7804, name: "Kozhikode Coast", level: "Coastal flooding possible"},
+            {lat: 9.9312, lng: 76.2673, name: "Kochi Lowlands", level: "Waterlogged areas"}
+        ];
+
+        // Add red markers for high danger
+        highDangerZones.forEach(function(zone) {
+            L.circleMarker([zone.lat, zone.lng], {
+                color: '#b71c1c',
+                fillColor: '#d32f2f',
+                fillOpacity: 0.8,
+                radius: 15,
+                weight: 3
+            }).addTo(map)
+            .bindPopup("<b>🔴 HIGH DANGER</b><br>" + zone.name + "<br>" + zone.level);
+        });
+
+        // Add yellow markers for caution
+        cautionZones.forEach(function(zone) {
+            L.circleMarker([zone.lat, zone.lng], {
+                color: '#f57f17',
+                fillColor: '#fbc02d',
+                fillOpacity: 0.8,
+                radius: 12,
+                weight: 3
+            }).addTo(map)
+            .bindPopup("<b>🟡 CAUTION</b><br>" + zone.name + "<br>" + zone.level);
+        });
+
+        // Function to add user danger report
+        function addDangerZone() {
+            alert("Click anywhere on the map to mark a new danger zone");
+            map.once('click', function(e) {
+                var userReport = prompt("Describe the flood situation at this location:");
+                if (userReport) {
+                    L.circleMarker([e.latlng.lat, e.latlng.lng], {
+                        color: '#b71c1c',
+                        fillColor: '#d32f2f',
+                        fillOpacity: 0.8,
+                        radius: 15,
+                        weight: 3
+                    }).addTo(map)
+                    .bindPopup("<b>🔴 USER REPORT</b><br>" + userReport)
+                    .openPopup();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
